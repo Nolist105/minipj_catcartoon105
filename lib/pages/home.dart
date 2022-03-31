@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
                 ));
           },
           child: const Text(
-            'เริ่มต้นใช้งาน',
+            'Get Start',
             style: TextStyle(color: Colors.black, fontSize: 22),
           ),
           style: ButtonStyle(

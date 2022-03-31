@@ -1,6 +1,9 @@
 import 'package:auth_buttons/auth_buttons.dart';
+import 'package:catcartoon/pages/loginprofile.dart';
 import 'package:catcartoon/pages/showcartoon.dart';
 import 'package:catcartoon/service/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 
@@ -12,12 +15,18 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController _email = TextEditingController();
-  TextEditingController _password = TextEditingController();
+  LoginProfile loginprofile = LoginProfile();
+  final Future<FirebaseApp> firebase = Firebase.initializeApp();
+  final _FormKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+
+    return FutureBuilder(
+        future: firebase,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Container(
       decoration: const BoxDecoration(
         image: DecorationImage(
             image: AssetImage('image/login.jpg'), fit: BoxFit.cover),
@@ -45,7 +54,18 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
-  }
+          }
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        });
+
+    
+   }
+
+
 
   SingleChildScrollView formfield(BuildContext context) {
     return SingleChildScrollView(
@@ -56,76 +76,98 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             Container(
               margin: const EdgeInsets.only(left: 35, right: 35),
-              child: Column(
-                children: [
-                  TextFormField(
-                    validator: RequiredValidator(errorText: "กรุณากรอกอีเมลล์"),
-                    keyboardType: TextInputType.emailAddress,
-                    controller: _email,
-                    style: const TextStyle(color: Colors.black),
-                    decoration: InputDecoration(
-                      label: const Text(
-                        'Email',
-                        style: TextStyle(fontSize: 20),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  TextFormField(
-                    validator:
-                        RequiredValidator(errorText: "กรุณากรอกรหัสผ่าน"),
-                    controller: _password,
-                    style: const TextStyle(),
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      label: const Text(
-                        'Password',
-                        style: TextStyle(fontSize: 20),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
+              child: Form(
+                key: _FormKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      validator: MultiValidator([
+                          RequiredValidator(errorText: "กรุณาป้อนอีเมล"),
+                          EmailValidator(errorText: "รูปแบบอีเมลไม่ถูกต้อง")
+                        ]),
+                        keyboardType: TextInputType.emailAddress,
+                        onSaved: (String? email) {
+                          loginprofile.email = email;
+                        },
+                      style: const TextStyle(color: Colors.black),
+                      decoration: InputDecoration(
+                        label: const Text(
+                          'Email',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 40,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'เข้าสู่ระบบ',
-                        style: TextStyle(
-                            fontSize: 26, fontWeight: FontWeight.w700),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    TextFormField(
+                      validator:
+                            RequiredValidator(errorText: "กรุณาป้อนรหัสผ่าน"),
+                        onSaved: (String? password) {
+                          loginprofile.password = password;
+                        },
+                      style: const TextStyle(),
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        label: const Text(
+                          'Password',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Color(0xff4c505b),
-                        child: IconButton(
-                            color: Colors.white,
-                            onPressed: () {
-                              siginWithEmail(_email.text, _password.text);
-                              var route = MaterialPageRoute(
-                                builder: (context) => const ShowCartoonPage(),
-                              );
-                              Navigator.push(context, route);
-                            },
-                            icon: const Icon(
-                              Icons.arrow_forward,
-                            )),
-                      )
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 40,
-                  ),
-                 
-                ],
+                    ),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'เข้าสู่ระบบ',
+                          style: TextStyle(
+                              fontSize: 26, fontWeight: FontWeight.w700),
+                        ),
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Color(0xff4c505b),
+                          child: IconButton(
+                              color: Colors.white,
+                               onPressed: () async {
+                                  if (_FormKey.currentState!.validate()) {
+                                    _FormKey.currentState!.save();
+                                    try {
+                                      await FirebaseAuth.instance
+                                          .signInWithEmailAndPassword(
+                                              email: loginprofile.email!,
+                                              password: loginprofile.password!)
+                                          .then((value) {
+                                        _FormKey.currentState!.reset();
+                                        Navigator.pushReplacement(context,
+                                            MaterialPageRoute(builder: (context) {
+                                          return const ShowCartoonPage();
+                                        }));
+                                      });
+                                    } on FirebaseAuthException catch (e) {
+                                    }
+                                  }
+                                },
+                              icon: const Icon(
+                                Icons.arrow_forward,
+                              )),
+                        )
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                   
+                  ],
+                ),
               ),
             )
           ],
