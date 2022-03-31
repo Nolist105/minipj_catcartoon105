@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "85271999108",
+    "project_id": "catcartoon-a755e",
+    "storage_bucket": "catcartoon-a755e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:85271999108:android:12f0e575300ba929ac88d1",
+        "android_client_info": {
+          "package_name": "com.example.catcartoon"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "85271999108-4sefuboe7nhnlov4fp88c0nk7nrube9a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdoFXXa6DHc2mX2Gx_mvr_SL5SygqMfE0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "85271999108-4sefuboe7nhnlov4fp88c0nk7nrube9a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
