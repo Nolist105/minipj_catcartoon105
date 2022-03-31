@@ -170,7 +170,7 @@ class _AddProductPageState extends State<AddProductPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const ShowProductPage(),
+                                  builder: (context) => const ShowCartoonPage(),
                                 ),
                               ).then((value) => setState(() {}));
                             },
